@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Об'єкти та масиви - Арсеній Пазюк</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .task-block { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; background-color: #eef7f9; }
+        button { margin: 5px 0; padding: 5px 10px; cursor: pointer; }
+        .output { margin-top: 10px; padding: 10px; border: 1px dashed #666; background: #fff; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Робота з об'єктами та масивами</h1>
+    <h2>Виконав: Арсеній Пазюк (Варіант 9: Домашні тварини)</h2>
+
+    <div class="task-block">
+        <h3>Завдання</h3>
+        <button id="btn-show-all">Показати всіх тварин</button>
+        <button id="btn-add">Додати тварину</button>
+        <button id="btn-sort">Відсортувати за віком</button>
+        <button id="btn-filter">Тільки невакциновані</button>
+        <div id="output-area" class="output"></div>
+    </div>
+
+    <script>
+        // Початковий масив тварин (Варіант 9)
+        let pets = [
+            { name: "Барсік", species: "Кіт", age: 3, favoriteFood: "Риба", isVaccinated: true },
+            { name: "Рекс", species: "Собака", age: 5, favoriteFood: "М'ясо", isVaccinated: false },
+            { name: "Кеша", species: "Папуга", age: 1, favoriteFood: "Зерно", isVaccinated: true }
+        ];
+
+        const out = document.getElementById('output-area');
+
+        function renderPets(arrayToRender = pets) {
+            let html = "<b>Список улюбленців:</b>\n";
+            arrayToRender.forEach(p => {
+                html += `- Ім'я: ${p.name}, Вид: ${p.species}, Вік: ${p.age}, Вакцинована: ${p.isVaccinated ? "Так" : "Ні"}\n`;
+            });
+            out.innerHTML = html;
+        }
+
+        document.getElementById('btn-show-all').onclick = () => renderPets();
+
+        document.getElementById('btn-add').onclick = () => {
+            let name = prompt("Введіть ім'я тварини:");
+            let species = prompt("Введіть вид:");
+            let age = +prompt("Введіть вік:");
+            let food = prompt("Улюблений корм:");
+            let isVaccinated = confirm("Вакцинована? (ОК - Так, Відміна - Ні)");
+            
+            pets.push({ name, species, age, favoriteFood: food, isVaccinated });
+            renderPets();
+        };
+
+        document.getElementById('btn-sort').onclick = () => {
+            let sorted = [...pets].sort((a, b) => a.age - b.age);
+            renderPets(sorted);
+        };
+
+        document.getElementById('btn-filter').onclick = () => {
+            let unvac = pets.filter(p => !p.isVaccinated);
+            renderPets(unvac);
+        };
+    </script>
+</body>
+</html>
