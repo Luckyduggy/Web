@@ -1,16 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Geolocation & Map</title>
-
-    <link rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>Лабораторна робота №7</title>
 
     <style>
         body {
@@ -32,356 +25,525 @@
             border: 1px solid #ccc;
         }
 
-        #map {
-            height: 400px;
-            width: 100%;
-            border-radius: 8px;
-            margin-top: 20px;
-            border: 1px solid #999;
+        .panel h3 {
+            margin-top: 0;
+        }
+
+        .row {
+            margin: 8px 0;
+        }
+
+        label.field {
+            display: inline-block;
+            min-width: 210px;
+        }
+
+        input[type="text"] {
+            padding: 6px;
+            width: 140px;
+            margin-right: 10px;
         }
 
         button {
-            padding: 8px 15px;
+            padding: 6px 14px;
             cursor: pointer;
-            margin-right: 10px;
-            margin-top: 10px;
         }
 
-        input {
-            padding: 8px;
-            width: 120px;
-            margin-right: 10px;
-        }
-
-        .info {
-            margin-top: 10px;
+        .result {
+            margin-top: 8px;
             font-weight: bold;
-            color: #333;
+        }
+
+        .ok {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .option {
+            display: block;
+            margin: 4px 0;
+            cursor: pointer;
+        }
+
+        #rotator {
+            max-width: 640px;
+            margin: 0 auto;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>Geolocation API та Карта</h1>
+    <h1>Робота з DOM. Обробка подій</h1>
 
     <div class="panel">
-
-        <button id="watch">
-            Почати відслідковування (Watch me)
-        </button>
-
-        <button id="clearWatch">
-            Зупинити (Clear watch)
-        </button>
-
-        <div id="location" class="info">
-            Ваша локація з'явиться тут...
+        <h3>1. Конвертер температури</h3>
+        <div class="row">
+            <label class="field" for="fahrenheit">Температура за Фаренгейтом</label>
+            <input type="text" id="fahrenheit" inputmode="decimal">
         </div>
-
-        <div id="distance" class="info">
-            Відстань до Коледжу з'явиться тут...
+        <div class="row">
+            <label class="field" for="celsius">Температура за Цельсієм</label>
+            <input type="text" id="celsius" inputmode="decimal">
         </div>
-
     </div>
 
     <div class="panel">
-
-        <h3>Перейти до пункту призначення</h3>
-
-        <input
-            type="number"
-            id="destLat"
-            placeholder="Широта (Lat)"
-            step="0.0001"
-            min="-90"
-            max="90"
-        >
-
-        <input
-            type="number"
-            id="destLng"
-            placeholder="Довгота (Lng)"
-            step="0.0001"
-            min="-180"
-            max="180"
-        >
-
-        <button id="goToDest">
-            Показати на карті
-        </button>
-
+        <h3>2. Таблиця множення (введення відповіді)</h3>
+        <div id="score2">Загальний рахунок 0% (0 правильних відповідей з 0)</div>
+        <div class="row"><button id="next2">наступне завдання</button></div>
+        <div class="row">
+            <span id="task2"></span>
+            <input type="text" id="answer2" inputmode="numeric">
+            <button id="check2">перевірити</button>
+        </div>
+        <div id="result2" class="result"></div>
     </div>
 
-    <div id="map"></div>
+    <div class="panel">
+        <h3>3. Таблиця множення (радіокнопки)</h3>
+        <div id="score3">Загальний рахунок 0% (0 правильних відповідей з 0)</div>
+        <div class="row"><button id="next3">наступне завдання</button></div>
+        <div class="row"><span id="task3"></span></div>
+        <div id="options3"></div>
+        <div id="result3" class="result"></div>
+    </div>
+
+    <div class="panel">
+        <h3>4. Перелистування зображень</h3>
+        <div id="rotator"></div>
+    </div>
+
+    <div class="panel">
+        <h3>5. Captcha</h3>
+        <div id="captcha"></div>
+    </div>
 
     <script>
-
-        // Координати коледжу
-        const collegeCoords = {
-            latitude: 48.94321,
-            longitude: 24.73380
-        };
-
-        let watchId = null;
-        let map = null;
-
-        let userMarker = null;
-        let collegeMarker = null;
-        let destinationMarker = null;
-
-
-        // Ініціалізація карти
-        function initMap(lat, lng) {
-
-            map = L.map('map').setView([lat, lng], 14);
-
-            L.tileLayer(
-                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                {
-                    attribution: '&copy; OpenStreetMap contributors'
-                }
-            ).addTo(map);
-
-            // Маркер коледжу
-            collegeMarker = L.marker([
-                collegeCoords.latitude,
-                collegeCoords.longitude
-            ]).addTo(map);
-
-            collegeMarker.bindPopup(
-                "<b>Коледж</b><br>Місце призначення"
-            );
-
-        }
-
-
-        // Відображення поточного місцезнаходження
-        function displayLocation(position) {
-
-            let lat = position.coords.latitude;
-            let lng = position.coords.longitude;
-
-            let accuracy = position.coords.accuracy;
-
-            let time = new Date(
-                position.timestamp
-            ).toLocaleTimeString();
-
-            document.getElementById("location").innerHTML =
-                `Ви знаходитесь: Широта ${lat.toFixed(5)},
-                Довгота ${lng.toFixed(5)}
-                <br>
-                (Точність: ${accuracy.toFixed(1)} м)`;
-
-            // Обчислення відстані до коледжу
-            let km = computeDistance(
-                position.coords,
-                collegeCoords
-            );
-
-            document.getElementById("distance").innerHTML =
-                `Ви знаходитесь за ${km.toFixed(2)} км від Коледжу`;
-
-            // Створення або переміщення маркера користувача
-            if (userMarker) {
-
-                userMarker.setLatLng([lat, lng]);
-
-            } else {
-
-                userMarker = L.marker([lat, lng]).addTo(map);
-
+        let imagesArray = [
+            {
+                path: 'images/001.jpg',
+                title: 'Британська короткошерста',
+                description: 'Кіт відпочиває на дивані'
+            },
+            {
+                path: 'images/002.jpg',
+                title: 'Мейн-кун',
+                description: 'Найбільша домашня порода котів'
+            },
+            {
+                path: 'images/003.jpg',
+                title: 'Сіамська кішка',
+                description: 'Кішка з блакитними очима'
+            },
+            {
+                path: 'images/004.jpg',
+                title: 'Шотландська висловуха',
+                description: 'Кошеня грається з м\'ячиком'
             }
+        ];
 
-            // Інформація про користувача
-            userMarker.bindPopup(
-                `<b>Ви тут!</b>
-                <br>
-                Координати: ${lat.toFixed(4)}, ${lng.toFixed(4)}
-                <br>
-                Час: ${time}`
-            );
 
-            userMarker.openPopup();
-
-            // Переміщення карти до користувача
-            map.panTo([lat, lng]);
-
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-
-        // Обробка помилок геолокації
-        function displayError(error) {
-
-            const errorTypes = {
-                1: "Користувач заборонив доступ до геолокації",
-                2: "Позиція недоступна",
-                3: "Час очікування вичерпано"
-            };
-
-            let errorMessage =
-                errorTypes[error.code] || "Невідома помилка";
-
-            document.getElementById("location").innerHTML =
-                `<span style="color:red;">
-                    ${errorMessage}
-                </span>`;
-
+        function roundTo(value, digits) {
+            const k = Math.pow(10, digits);
+            return Math.round(value * k) / k;
         }
 
-
-        // Обчислення відстані між двома точками
-        function computeDistance(startCoords, destCoords) {
-
-            let startLatRads = degreesToRadians(
-                startCoords.latitude
-            );
-
-            let startLongRads = degreesToRadians(
-                startCoords.longitude
-            );
-
-            let destLatRads = degreesToRadians(
-                destCoords.latitude
-            );
-
-            let destLongRads = degreesToRadians(
-                destCoords.longitude
-            );
-
-            const Radius = 6371;
-
-            let distance = Math.acos(
-                Math.min(1, Math.max(-1,
-                    Math.sin(startLatRads) *
-                    Math.sin(destLatRads) +
-
-                    Math.cos(startLatRads) *
-                    Math.cos(destLatRads) *
-                    Math.cos(startLongRads - destLongRads)
-                ))
-            ) * Radius;
-
-            return distance;
-
-        }
-
-
-        // Перетворення градусів у радіани
-        function degreesToRadians(degrees) {
-
-            return (degrees * Math.PI) / 180;
-
-        }
-
-
-        // Початок відстежування
-        document.getElementById("watch").onclick = () => {
-
-            if (navigator.geolocation) {
-
-                if (watchId === null) {
-
-                    watchId = navigator.geolocation.watchPosition(
-                        displayLocation,
-                        displayError,
-                        {
-                            enableHighAccuracy: true,
-                            timeout: 10000,
-                            maximumAge: 0
-                        }
-                    );
-
-                    document.getElementById("location").innerHTML =
-                        "Відстежування запущено...";
-
-                }
-
-            } else {
-
-                alert("Ваш браузер не підтримує геолокацію");
-
+        function parseNumber(text) {
+            const normalized = text.trim().replace(',', '.');
+            if (normalized === '' || normalized === '-' || normalized === '.') {
+                return NaN;
             }
+            return Number(normalized);
+        }
 
-        };
+        function formatScore(score) {
+            const percent = score.total === 0
+                ? 0
+                : Math.round((score.correct / score.total) * 100);
+            return `Загальний рахунок ${percent}% (${score.correct} правильних відповідей з ${score.total})`;
+        }
 
-
-        // Зупинка відстежування
-        document.getElementById("clearWatch").onclick = () => {
-
-            if (watchId !== null) {
-
-                navigator.geolocation.clearWatch(watchId);
-
-                watchId = null;
-
-                document.getElementById("location").innerHTML +=
-                    "<br><span style='color:orange;'>" +
-                    "Відстежування зупинено." +
-                    "</span>";
-
+        function createEl(tag, text, cssText) {
+            const element = document.createElement(tag);
+            if (text) {
+                element.textContent = text;
             }
+            if (cssText) {
+                element.style.cssText = cssText;
+            }
+            return element;
+        }
 
-        };
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = randomInt(0, i);
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
 
-        // Перехід до пункту призначення
-        document.getElementById("goToDest").onclick = () => {
+        function fahrenheitToCelsius(f) {
+            return (5 / 9) * (f - 32);
+        }
 
-            let lat = parseFloat(
-                document.getElementById("destLat").value
-            );
+        function celsiusToFahrenheit(c) {
+            return (9 / 5) * c + 32;
+        }
 
-            let lng = parseFloat(
-                document.getElementById("destLng").value
-            );
+        function onFahrenheitChange() {
+            const fInput = document.getElementById('fahrenheit');
+            const cInput = document.getElementById('celsius');
+            const f = parseNumber(fInput.value);
+            cInput.value = Number.isFinite(f) ? roundTo(fahrenheitToCelsius(f), 2) : '';
+        }
 
-            // Перевірка координат
-            if (
-                !Number.isFinite(lat) ||
-                !Number.isFinite(lng) ||
-                lat < -90 || lat > 90 ||
-                lng < -180 || lng > 180
-            ) {
+        function onCelsiusChange() {
+            const fInput = document.getElementById('fahrenheit');
+            const cInput = document.getElementById('celsius');
+            const c = parseNumber(cInput.value);
+            fInput.value = Number.isFinite(c) ? roundTo(celsiusToFahrenheit(c), 2) : '';
+        }
 
-                alert("Будь ласка, введіть коректні координати.");
+        function initTemperature() {
+            document.getElementById('fahrenheit').addEventListener('input', onFahrenheitChange);
+            document.getElementById('celsius').addEventListener('input', onCelsiusChange);
+        }
 
+
+        const score2 = { correct: 0, total: 0 };
+        let task2 = { a: 0, b: 0, answered: false };
+
+        function newTask2() {
+            task2 = { a: randomInt(2, 9), b: randomInt(2, 9), answered: false };
+            document.getElementById('task2').textContent = `${task2.a} × ${task2.b} =`;
+            const input = document.getElementById('answer2');
+            input.value = '';
+            input.disabled = false;
+            document.getElementById('check2').disabled = false;
+            document.getElementById('result2').textContent = '';
+            document.getElementById('result2').className = 'result';
+            input.focus();
+        }
+
+        function checkTask2() {
+            if (task2.answered) {
                 return;
+            }
+            const input = document.getElementById('answer2');
+            const result = document.getElementById('result2');
+            const value = parseNumber(input.value);
 
+            if (!Number.isFinite(value)) {
+                result.textContent = 'Введіть число';
+                result.className = 'result error';
+                return;
             }
 
-            // Переміщення карти
-            map.flyTo([lat, lng], 15);
+            const right = task2.a * task2.b;
+            task2.answered = true;
+            score2.total++;
 
-            // Створення або переміщення маркера
-            if (destinationMarker) {
-
-                destinationMarker.setLatLng([lat, lng]);
-
+            if (value === right) {
+                score2.correct++;
+                result.textContent = 'Правильно!';
+                result.className = 'result ok';
             } else {
-
-                destinationMarker = L.marker([lat, lng]).addTo(map);
-
+                result.textContent = `Помилка, правильна відповідь «${right}»`;
+                result.className = 'result error';
             }
 
-            destinationMarker.bindPopup(
-                `<b>Пункт призначення</b>
-                <br>
-                Широта: ${lat}
-                <br>
-                Довгота: ${lng}`
-            ).openPopup();
+            input.disabled = true;
+            document.getElementById('check2').disabled = true;
+            document.getElementById('score2').textContent = formatScore(score2);
+        }
 
+        function initMultiplication() {
+            document.getElementById('next2').addEventListener('click', newTask2);
+            document.getElementById('check2').addEventListener('click', checkTask2);
+            document.getElementById('answer2').addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    checkTask2();
+                }
+            });
+            newTask2();
+        }
+
+
+        const score3 = { correct: 0, total: 0 };
+        let task3 = { a: 0, b: 0, right: 0, answered: false };
+
+        function generateOptions(right) {
+            const options = new Set([right]);
+            while (options.size < 4) {
+                const candidate = randomInt(2, 9) * randomInt(2, 9);
+                options.add(candidate);
+            }
+            return shuffle(Array.from(options));
+        }
+
+        function newTask3() {
+            const a = randomInt(2, 9);
+            const b = randomInt(2, 9);
+            task3 = { a, b, right: a * b, answered: false };
+
+            document.getElementById('task3').textContent = `${a} × ${b} =`;
+            document.getElementById('result3').textContent = '';
+            document.getElementById('result3').className = 'result';
+
+            const container = document.getElementById('options3');
+            container.textContent = '';
+
+            generateOptions(task3.right).forEach((value) => {
+                const label = createEl('label');
+                label.className = 'option';
+
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'answer3';
+                radio.value = value;
+                radio.addEventListener('change', onRadioChange);
+
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(' ' + value));
+                container.appendChild(label);
+            });
+        }
+
+        function onRadioChange(event) {
+            if (task3.answered) {
+                return;
+            }
+            task3.answered = true;
+            score3.total++;
+
+            const chosen = Number(event.target.value);
+            const result = document.getElementById('result3');
+
+            if (chosen === task3.right) {
+                score3.correct++;
+                result.textContent = 'Правильно!';
+                result.className = 'result ok';
+            } else {
+                result.textContent = `Помилка, правильна відповідь «${task3.right}»`;
+                result.className = 'result error';
+            }
+
+            document.querySelectorAll('input[name="answer3"]').forEach((radio) => {
+                radio.disabled = true;
+            });
+            document.getElementById('score3').textContent = formatScore(score3);
+        }
+
+        function initMultiplicationRadio() {
+            document.getElementById('next3').addEventListener('click', newTask3);
+            newTask3();
+        }
+
+
+        function createPlaceholder(text) {
+            const svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="320">' +
+                '<rect width="100%" height="100%" fill="#dfe8ec"/>' +
+                '<text x="50%" y="50%" font-family="Arial" font-size="28" fill="#667" ' +
+                'text-anchor="middle" dominant-baseline="middle">' + text + '</text>' +
+                '</svg>';
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        }
+
+        function initPhotoRotator(containerId, images) {
+            const container = document.getElementById(containerId);
+            container.textContent = '';
+            let index = 0;
+
+            const wrapper = createEl('div',
+                '',
+                'display:grid;grid-template-columns:70px 1fr 70px;' +
+                'grid-template-rows:36px 340px 64px;align-items:center;' +
+                'text-align:center;border:1px solid #ddd;background:#fff;');
+
+            const counter = createEl('div', '', 'grid-column:2;grid-row:1;font-size:14px;');
+
+            const backLink = createEl('a', 'Назад', 'grid-column:1;grid-row:2;');
+            backLink.href = '#';
+
+            const forwardLink = createEl('a', 'Вперед', 'grid-column:3;grid-row:2;');
+            forwardLink.href = '#';
+
+            const imageBox = createEl('div',
+                '',
+                'grid-column:2;grid-row:2;height:100%;box-sizing:border-box;' +
+                'padding:8px;display:flex;align-items:center;justify-content:center;');
+
+            const image = createEl('img', '', 'max-width:100%;max-height:100%;object-fit:contain;');
+            imageBox.appendChild(image);
+
+            const caption = createEl('div', '', 'grid-column:2;grid-row:3;');
+            const title = createEl('div', '', 'font-weight:bold;');
+            const description = createEl('div', '', 'font-size:14px;');
+            caption.appendChild(title);
+            caption.appendChild(description);
+
+            wrapper.appendChild(backLink);
+            wrapper.appendChild(counter);
+            wrapper.appendChild(imageBox);
+            wrapper.appendChild(forwardLink);
+            wrapper.appendChild(caption);
+            container.appendChild(wrapper);
+
+            function show() {
+                const item = images[index];
+
+                image.onerror = () => {
+                    image.onerror = null;
+                    image.src = createPlaceholder(item.title);
+                };
+                image.src = item.path;
+                image.alt = item.title;
+
+                counter.textContent = `Фотографія ${index + 1} з ${images.length}`;
+                title.textContent = item.title;
+                description.textContent = item.description;
+
+                backLink.style.visibility = index === 0 ? 'hidden' : 'visible';
+                forwardLink.style.visibility = index === images.length - 1 ? 'hidden' : 'visible';
+            }
+
+            backLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                if (index > 0) {
+                    index--;
+                    show();
+                }
+            });
+
+            forwardLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                if (index < images.length - 1) {
+                    index++;
+                    show();
+                }
+            });
+
+            show();
+        }
+
+
+        const digitFont = {
+            '0': ['111', '101', '101', '101', '111'],
+            '1': ['010', '110', '010', '010', '111'],
+            '2': ['111', '001', '111', '100', '111'],
+            '3': ['111', '001', '111', '001', '111'],
+            '4': ['101', '101', '111', '001', '001'],
+            '5': ['111', '100', '111', '001', '111'],
+            '6': ['111', '100', '111', '101', '111'],
+            '7': ['111', '001', '001', '001', '001'],
+            '8': ['111', '101', '111', '101', '111'],
+            '9': ['111', '101', '111', '001', '111']
         };
 
+        function generateCaptchaCode(length) {
+            let code = '';
+            for (let i = 0; i < length; i++) {
+                code += randomInt(0, 9);
+            }
+            return code;
+        }
 
-        // Створення карти після завантаження сторінки
-        initMap(
-            collegeCoords.latitude,
-            collegeCoords.longitude
-        );
+        function createDigitElement(digit) {
+            const pattern = digitFont[digit];
+            const box = createEl('div', '', 'display:grid;grid-template-columns:repeat(3,8px);margin-right:8px;');
 
+            pattern.forEach((row) => {
+                for (const cell of row) {
+                    const pixel = createEl('span', '', 'width:8px;height:8px;');
+                    pixel.style.background = cell === '1' ? 'red' : 'white';
+                    box.appendChild(pixel);
+                }
+            });
+
+            return box;
+        }
+
+        function renderCaptcha(display, code) {
+            display.textContent = '';
+            for (const digit of code) {
+                display.appendChild(createDigitElement(digit));
+            }
+        }
+
+        function initCaptcha(containerId, length) {
+            const container = document.getElementById(containerId);
+            container.textContent = '';
+
+            if (!Number.isInteger(length) || length < 1) {
+                return;
+            }
+
+            let code = generateCaptchaCode(length);
+
+            const title = createEl('div', 'Введіть число', 'margin-bottom:8px;');
+            const display = createEl('div',
+                '',
+                'display:flex;padding:6px;border:2px solid #bbb;background:#fff;' +
+                'width:fit-content;max-width:100%;overflow-x:auto;');
+            const input = createEl('input', '', 'display:block;margin-top:6px;padding:6px;width:150px;');
+            input.type = 'text';
+            input.inputMode = 'numeric';
+            input.maxLength = length;
+            const message = createEl('div', '', 'margin-top:8px;font-weight:bold;');
+
+            const refresh = createEl('button', 'Оновити', 'margin-top:8px;');
+
+            container.appendChild(title);
+            container.appendChild(display);
+            container.appendChild(input);
+            container.appendChild(message);
+            container.appendChild(refresh);
+
+            renderCaptcha(display, code);
+
+            function checkCaptcha() {
+                const value = input.value.trim();
+
+                if (value.length < length) {
+                    message.textContent = '';
+                    return;
+                }
+
+                if (value === code) {
+                    message.textContent = 'Правильно';
+                    message.style.color = 'green';
+                } else {
+                    message.textContent = 'Помилка';
+                    message.style.color = 'red';
+                }
+            }
+
+            input.addEventListener('input', checkCaptcha);
+
+            refresh.addEventListener('click', () => {
+                code = generateCaptchaCode(length);
+                renderCaptcha(display, code);
+                input.value = '';
+                message.textContent = '';
+            });
+        }
+
+
+        initTemperature();
+        initMultiplication();
+        initMultiplicationRadio();
+        initPhotoRotator('rotator', imagesArray);
+        initCaptcha('captcha', 4);
     </script>
 
 </body>
