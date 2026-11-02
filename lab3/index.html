@@ -31,8 +31,6 @@
     </div>
 
     <script>
-        // --- РІВЕНЬ 4-6 ---
-        // Завдання 1
         function getFullName(firstName, lastName) { return `${firstName} ${lastName}`; }
         function showGreeting(fullName, age) { return `Hello, ${fullName}! You are ${age} years old.`; }
         
@@ -44,7 +42,6 @@
             document.getElementById('output-4-6').innerHTML = showGreeting(full, age);
         });
 
-        // Завдання 2
         function checkGrade(score) {
             if (score >= 10 && score <= 12) return "Excellent";
             if (score >= 7 && score <= 9) return "Good";
@@ -59,7 +56,6 @@
             document.getElementById('output-4-6').innerHTML = `Student: ${name} <br> Grade: ${grade}`;
         });
 
-        // Завдання 3
         function calculateTip(amount, percent = 10) { return (amount * percent) / 100; }
         
         document.getElementById('btn-4-6-3').addEventListener('click', () => {
@@ -69,8 +65,6 @@
             document.getElementById('output-4-6').innerHTML = `Bill: ${bill} грн <br> Tip (10%): ${tip} грн <br> Total: ${total} грн`;
         });
 
-        // --- РІВЕНЬ 7-9 ---
-        // Завдання 1
         function startGreetingTimer(message, seconds, callback) {
             document.getElementById('output-7-9').innerHTML = `Чекаємо ${seconds} секунд...`;
             setTimeout(() => {
@@ -83,7 +77,6 @@
             startGreetingTimer("Час вийшов!", 2, () => alert('Time is up!'));
         });
 
-        // Завдання 2
         function calculate(a, b, operation) {
             switch (operation) {
                 case '+': return a + b;
@@ -103,7 +96,6 @@
             document.getElementById('output-7-9').innerHTML = `Результат операції ${a} ${op} ${b} = ${res}`;
         });
 
-        // Завдання 3
         function createClickCounter() {
             let count = 0;
             return function() {
@@ -111,7 +103,7 @@
                 return count;
             };
         }
-        const counter = createClickCounter(); // Створюємо один раз
+        const counter = createClickCounter();
         
         document.getElementById('btn-7-9-3').addEventListener('click', () => {
             const currentCount = counter();

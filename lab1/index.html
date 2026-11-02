@@ -39,16 +39,10 @@
         <div id="output-10-12"></div>
     </div>
 
-    <!-- Підключення сучасного модуля JS -->
     <script type="module">
-        // ==========================================
-        // ВВЕДІТЬ ВАШІ ДАНІ ТУТ:
-        const firstName = 'Арсеній'; // Ваше ім'я
-        const lastName = 'Іванов'; // Ваше прізвище
-        const journalNumber = 9; // Ваш номер у журналі
-        // ==========================================
-
-        // --- РІВЕНЬ 4-6 БАЛІВ ---
+        const firstName = 'Арсеній'; 
+        const lastName = 'Іванов'; 
+        const journalNumber = 9; 
         document.getElementById('btn-4-6-1').addEventListener('click', () => {
             alert('Починаємо виконання завдання!');
             document.getElementById('output-4-6').innerHTML += `<p>Hello, ${lastName} ${firstName}!</p>`;
@@ -71,7 +65,6 @@
         });
 
 
-        // --- РІВЕНЬ 7-9 БАЛІВ ---
         document.getElementById('btn-7-9-1').addEventListener('click', () => {
             const isEven = journalNumber % 2 === 0;
             const p = document.createElement('p');
@@ -111,14 +104,12 @@
                 const student = prompt(`Введіть прізвище та ім'я студента ${i + 1}:`);
                 if (student) {
                     resultHTML += `<li>${student}</li>`;
-                    // Відображаємо одразу після введення
                     document.getElementById('output-7-9').innerHTML = resultHTML + '</ul>';
                 }
             }
         });
 
 
-        // --- РІВЕНЬ 10-12 БАЛІВ ---
         document.getElementById('btn-10-12-1').addEventListener('click', () => {
             const ul = document.createElement('ul');
             for (const letter of firstName) {
@@ -144,13 +135,11 @@
         document.getElementById('btn-10-12-3').addEventListener('click', () => {
             const container = document.getElementById('letters');
             
-            // Якщо контейнер вже містить блоки, очищаємо його
             if (container.innerHTML.trim() !== '') {
                 container.innerHTML = '';
                 return;
             }
             
-            // Інакше створюємо блоки для прізвища
             for (const letter of lastName) {
                 const div = document.createElement('div');
                 div.className = 'letter-block';
