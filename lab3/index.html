@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота №3 - Арсеній Пазюк</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .task-block { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        button { margin: 5px 0; padding: 5px 10px; cursor: pointer; }
+        .output { margin-top: 10px; padding: 10px; border: 1px dashed #666; background: #fff; min-height: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Лабораторна робота №3</h1>
+    <h2>Виконав: Арсеній Пазюк (Варіант 9)</h2>
+
+    <div class="task-block">
+        <h3>Рівень 4-6 балів</h3>
+        <button id="btn-4-6-1">Завдання 1 (Привітання)</button>
+        <button id="btn-4-6-2">Завдання 2 (Оцінка)</button>
+        <button id="btn-4-6-3">Завдання 3 (Чайові)</button>
+        <div id="output-4-6" class="output">Результати з'являться тут...</div>
+    </div>
+
+    <div class="task-block">
+        <h3>Рівень 7-9 балів</h3>
+        <button id="btn-7-9-1">Завдання 1 (Таймер-колбек)</button>
+        <button id="btn-7-9-2">Завдання 2 (Калькулятор)</button>
+        <button id="btn-7-9-3">Завдання 3 (Лічильник - Замикання)</button>
+        <div id="output-7-9" class="output">Результати з'являться тут...</div>
+    </div>
+
+    <script>
+        // --- РІВЕНЬ 4-6 ---
+        // Завдання 1
+        function getFullName(firstName, lastName) { return `${firstName} ${lastName}`; }
+        function showGreeting(fullName, age) { return `Hello, ${fullName}! You are ${age} years old.`; }
+        
+        document.getElementById('btn-4-6-1').addEventListener('click', () => {
+            const fName = prompt("Введіть ім'я:");
+            const lName = prompt("Введіть прізвище:");
+            const age = prompt("Введіть вік:");
+            const full = getFullName(fName, lName);
+            document.getElementById('output-4-6').innerHTML = showGreeting(full, age);
+        });
+
+        // Завдання 2
+        function checkGrade(score) {
+            if (score >= 10 && score <= 12) return "Excellent";
+            if (score >= 7 && score <= 9) return "Good";
+            if (score >= 4 && score <= 6) return "Satisfactory";
+            return "Fail";
+        }
+        
+        document.getElementById('btn-4-6-2').addEventListener('click', () => {
+            const name = prompt("Ім'я студента:");
+            const score = +prompt("Бал (0-12):");
+            const grade = checkGrade(score);
+            document.getElementById('output-4-6').innerHTML = `Student: ${name} <br> Grade: ${grade}`;
+        });
+
+        // Завдання 3
+        function calculateTip(amount, percent = 10) { return (amount * percent) / 100; }
+        
+        document.getElementById('btn-4-6-3').addEventListener('click', () => {
+            const bill = +prompt("Загальна сума рахунку (грн):");
+            const tip = calculateTip(bill);
+            const total = bill + tip;
+            document.getElementById('output-4-6').innerHTML = `Bill: ${bill} грн <br> Tip (10%): ${tip} грн <br> Total: ${total} грн`;
+        });
+
+        // --- РІВЕНЬ 7-9 ---
+        // Завдання 1
+        function startGreetingTimer(message, seconds, callback) {
+            document.getElementById('output-7-9').innerHTML = `Чекаємо ${seconds} секунд...`;
+            setTimeout(() => {
+                document.getElementById('output-7-9').innerHTML = message;
+                callback();
+            }, seconds * 1000);
+        }
+        
+        document.getElementById('btn-7-9-1').addEventListener('click', () => {
+            startGreetingTimer("Час вийшов!", 2, () => alert('Time is up!'));
+        });
+
+        // Завдання 2
+        function calculate(a, b, operation) {
+            switch (operation) {
+                case '+': return a + b;
+                case '-': return a - b;
+                case '*': return a * b;
+                case '/': return b !== 0 ? a / b : 'Ділення на нуль';
+                default: return 'Invalid operation';
+            }
+        }
+        
+        document.getElementById('btn-7-9-2').addEventListener('click', () => {
+            let a = +prompt("Перше число:");
+            let b = +prompt("Друге число:");
+            let op = prompt("Операція (+, -, *, /):");
+            let res = calculate(a, b, op);
+            alert(`Результат: ${res}`);
+            document.getElementById('output-7-9').innerHTML = `Результат операції ${a} ${op} ${b} = ${res}`;
+        });
+
+        // Завдання 3
+        function createClickCounter() {
+            let count = 0;
+            return function() {
+                count++;
+                return count;
+            };
+        }
+        const counter = createClickCounter(); // Створюємо один раз
+        
+        document.getElementById('btn-7-9-3').addEventListener('click', () => {
+            const currentCount = counter();
+            console.log(`Count: ${currentCount}`);
+            document.getElementById('output-7-9').innerHTML = `Лічильник кліків: ${currentCount} (перевір консоль)`;
+        });
+    </script>
+</body>
+</html>
