@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота №1</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .task-block { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
+        button { margin: 5px 0; padding: 5px 10px; cursor: pointer; }
+        .letter-block { display: inline-block; padding: 10px; margin: 5px; background: #eee; border: 1px solid #999; cursor: pointer;}
+    </style>
+</head>
+<body>
+    <h1>Лабораторна робота №1</h1>
+    
+    <div class="task-block">
+        <h3>Рівень 4-6 балів</h3>
+        <button id="btn-4-6-1">Завдання 1 (Hello)</button>
+        <button id="btn-4-6-2">Завдання 2 (Ок/Відміна)</button>
+        <button id="btn-4-6-3">Завдання 3 (Таблиця множення)</button>
+        <div id="output-4-6"></div>
+    </div>
+
+    <div class="task-block">
+        <h3>Рівень 7-9 балів</h3>
+        <button id="btn-7-9-1">Завдання 1 (Парність номера)</button>
+        <button id="btn-7-9-2">Завдання 2 (Пароль)</button>
+        <button id="btn-7-9-3">Завдання 3 (Середній бал)</button>
+        <button id="btn-7-9-4">Завдання 4 (Студенти)</button>
+        <div id="output-7-9"></div>
+    </div>
+
+    <div class="task-block">
+        <h3>Рівень 10-12 балів</h3>
+        <button id="btn-10-12-1">Завдання 1 (Список літер імені)</button>
+        <button id="btn-10-12-2">Завдання 2 (Введення до відміни)</button>
+        <button id="btn-10-12-3">Показати блоки (Літери прізвища)</button>
+        <div id="letters"></div>
+        <div id="output-10-12"></div>
+    </div>
+
+    <!-- Підключення сучасного модуля JS -->
+    <script type="module">
+        // ==========================================
+        // ВВЕДІТЬ ВАШІ ДАНІ ТУТ:
+        const firstName = 'Арсеній'; // Ваше ім'я
+        const lastName = 'Іванов'; // Ваше прізвище
+        const journalNumber = 9; // Ваш номер у журналі
+        // ==========================================
+
+        // --- РІВЕНЬ 4-6 БАЛІВ ---
+        document.getElementById('btn-4-6-1').addEventListener('click', () => {
+            alert('Починаємо виконання завдання!');
+            document.getElementById('output-4-6').innerHTML += `<p>Hello, ${lastName} ${firstName}!</p>`;
+        });
+
+        document.getElementById('btn-4-6-2').addEventListener('click', () => {
+            const isOk = confirm('Натисніть "Ок" або "Відміна"');
+            const message = isOk ? 'Ви натиснули кнопку "Ок"' : 'Ви натиснули кнопку "Відміна"';
+            document.getElementById('output-4-6').innerHTML += `<p>${message}</p>`;
+        });
+
+        document.getElementById('btn-4-6-3').addEventListener('click', () => {
+            const lastDigit = journalNumber % 10;
+            let tableHTML = `<h4>Таблиця множення для ${lastDigit}:</h4><ul>`;
+            for (let i = 1; i <= 10; i++) {
+                tableHTML += `<li>${lastDigit} x ${i} = ${lastDigit * i}</li>`;
+            }
+            tableHTML += '</ul>';
+            document.getElementById('output-4-6').innerHTML += tableHTML;
+        });
+
+
+        // --- РІВЕНЬ 7-9 БАЛІВ ---
+        document.getElementById('btn-7-9-1').addEventListener('click', () => {
+            const isEven = journalNumber % 2 === 0;
+            const p = document.createElement('p');
+            p.textContent = `Ваш номер (${journalNumber}) - ${isEven ? 'парний' : 'непарний'}`;
+            p.style.color = isEven ? 'green' : 'red';
+            document.getElementById('output-7-9').appendChild(p);
+        });
+
+        document.getElementById('btn-7-9-2').addEventListener('click', () => {
+            const passStart = firstName.substring(0, 3);
+            const passEnd = journalNumber * 2;
+            const password = `${passStart}${passEnd}`;
+            
+            const div = document.createElement('div');
+            div.textContent = `Ваш згенерований пароль: ${password}`;
+            document.getElementById('output-7-9').appendChild(div);
+        });
+
+        document.getElementById('btn-7-9-3').addEventListener('click', () => {
+            const g1 = parseFloat(prompt('Введіть першу оцінку:')) || 0;
+            const g2 = parseFloat(prompt('Введіть другу оцінку:')) || 0;
+            const g3 = parseFloat(prompt('Введіть третю оцінку:')) || 0;
+            const avg = ((g1 + g2 + g3) / 3).toFixed(2);
+            
+            const div = document.createElement('div');
+            div.id = journalNumber.toString();
+            div.textContent = `Середній бал: ${avg} (блок з id="${div.id}")`;
+            document.getElementById('output-7-9').appendChild(div);
+        });
+
+        document.getElementById('btn-7-9-4').addEventListener('click', () => {
+            const count = parseInt(prompt('Введіть кількість студентів групи:'), 10);
+            if (isNaN(count) || count <= 0) return;
+            
+            let resultHTML = '<h4>Список студентів:</h4><ul>';
+            for (let i = 0; i < count; i++) {
+                const student = prompt(`Введіть прізвище та ім'я студента ${i + 1}:`);
+                if (student) {
+                    resultHTML += `<li>${student}</li>`;
+                    // Відображаємо одразу після введення
+                    document.getElementById('output-7-9').innerHTML = resultHTML + '</ul>';
+                }
+            }
+        });
+
+
+        // --- РІВЕНЬ 10-12 БАЛІВ ---
+        document.getElementById('btn-10-12-1').addEventListener('click', () => {
+            const ul = document.createElement('ul');
+            for (const letter of firstName) {
+                const li = document.createElement('li');
+                li.textContent = letter;
+                li.addEventListener('mouseover', () => alert(`Це літера ${letter}`));
+                ul.appendChild(li);
+            }
+            document.getElementById('output-10-12').appendChild(ul);
+        });
+
+        document.getElementById('btn-10-12-2').addEventListener('click', () => {
+            let resultHTML = '<h4>Введені студенти:</h4><ul>';
+            while (true) {
+                const student = prompt('Введіть прізвище та ім\'я (або натисніть "Відміна" для завершення):');
+                if (student === null) break; 
+                
+                resultHTML += `<li>${student}</li>`;
+                document.getElementById('output-10-12').innerHTML = resultHTML + '</ul>';
+            }
+        });
+
+        document.getElementById('btn-10-12-3').addEventListener('click', () => {
+            const container = document.getElementById('letters');
+            
+            // Якщо контейнер вже містить блоки, очищаємо його
+            if (container.innerHTML.trim() !== '') {
+                container.innerHTML = '';
+                return;
+            }
+            
+            // Інакше створюємо блоки для прізвища
+            for (const letter of lastName) {
+                const div = document.createElement('div');
+                div.className = 'letter-block';
+                div.textContent = letter;
+                div.addEventListener('mouseover', () => alert(`Це літера [ ${letter} ]`));
+                container.appendChild(div);
+            }
+        });
+    </script>
+</body>
+</html>
