@@ -1,143 +1,388 @@
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Geolocation & Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
-        .panel { background: #eef7f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ccc;}
-        #map { height: 400px; width: 100%; border-radius: 8px; margin-top: 20px; border: 1px solid #999;}
-        button { padding: 8px 15px; cursor: pointer; margin-right: 10px; margin-top: 10px; }
-        input { padding: 8px; width: 120px; margin-right: 10px; }
-        .info { margin-top: 10px; font-weight: bold; color: #333; }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .panel {
+            background: #eef7f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #999;
+        }
+
+        button {
+            padding: 8px 15px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        input {
+            padding: 8px;
+            width: 120px;
+            margin-right: 10px;
+        }
+
+        .info {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
     </style>
 </head>
+
 <body>
+
     <h1>Geolocation API та Карта</h1>
 
     <div class="panel">
-        <button id="watch">Почати відслідковування (Watch me)</button>
-        <button id="clearWatch">Зупинити (Clear watch)</button>
-        
-        <div id="location" class="info">Ваша локація з'явиться тут...</div>
-        <div id="distance" class="info">Відстань до Коледжу з'явиться тут...</div>
+
+        <button id="watch">
+            Почати відслідковування (Watch me)
+        </button>
+
+        <button id="clearWatch">
+            Зупинити (Clear watch)
+        </button>
+
+        <div id="location" class="info">
+            Ваша локація з'явиться тут...
+        </div>
+
+        <div id="distance" class="info">
+            Відстань до Коледжу з'явиться тут...
+        </div>
+
     </div>
 
     <div class="panel">
+
         <h3>Перейти до пункту призначення</h3>
-        <input type="number" id="destLat" placeholder="Широта (Lat)" step="0.0001">
-        <input type="number" id="destLng" placeholder="Довгота (Lng)" step="0.0001">
-        <button id="goToDest">Показати на карті</button>
+
+        <input
+            type="number"
+            id="destLat"
+            placeholder="Широта (Lat)"
+            step="0.0001"
+            min="-90"
+            max="90"
+        >
+
+        <input
+            type="number"
+            id="destLng"
+            placeholder="Довгота (Lng)"
+            step="0.0001"
+            min="-180"
+            max="180"
+        >
+
+        <button id="goToDest">
+            Показати на карті
+        </button>
+
     </div>
 
     <div id="map"></div>
 
     <script>
-        const collegeCoords = { latitude: 48.94321, longitude: 24.73380 };
+
+        // Координати коледжу
+        const collegeCoords = {
+            latitude: 48.94321,
+            longitude: 24.73380
+        };
+
         let watchId = null;
         let map = null;
-        let userMarker = null;
 
+        let userMarker = null;
+        let collegeMarker = null;
+        let destinationMarker = null;
+
+
+        // Ініціалізація карти
         function initMap(lat, lng) {
-            if (!map) {
-                map = L.map('map').setView([lat, lng], 14);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+            map = L.map('map').setView([lat, lng], 14);
+
+            L.tileLayer(
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
                     attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(map);
-            }
+                }
+            ).addTo(map);
+
+            // Маркер коледжу
+            collegeMarker = L.marker([
+                collegeCoords.latitude,
+                collegeCoords.longitude
+            ]).addTo(map);
+
+            collegeMarker.bindPopup(
+                "<b>Коледж</b><br>Місце призначення"
+            );
+
         }
 
+
+        // Відображення поточного місцезнаходження
         function displayLocation(position) {
+
             let lat = position.coords.latitude;
             let lng = position.coords.longitude;
+
             let accuracy = position.coords.accuracy;
-            let time = new Date(position.timestamp).toLocaleTimeString();
 
-            document.getElementById("location").innerHTML = 
-                `Ви знаходитесь: Широта ${lat.toFixed(5)}, Довгота ${lng.toFixed(5)} <br> (Точність: ${accuracy.toFixed(1)} м)`;
+            let time = new Date(
+                position.timestamp
+            ).toLocaleTimeString();
 
-            let km = computeDistance(position.coords, collegeCoords);
-            document.getElementById("distance").innerHTML = `Ви знаходитесь за ${km.toFixed(2)} км від Коледжу`;
+            document.getElementById("location").innerHTML =
+                `Ви знаходитесь: Широта ${lat.toFixed(5)},
+                Довгота ${lng.toFixed(5)}
+                <br>
+                (Точність: ${accuracy.toFixed(1)} м)`;
 
-            initMap(lat, lng);
-            
+            // Обчислення відстані до коледжу
+            let km = computeDistance(
+                position.coords,
+                collegeCoords
+            );
+
+            document.getElementById("distance").innerHTML =
+                `Ви знаходитесь за ${km.toFixed(2)} км від Коледжу`;
+
+            // Створення або переміщення маркера користувача
             if (userMarker) {
+
                 userMarker.setLatLng([lat, lng]);
+
             } else {
+
                 userMarker = L.marker([lat, lng]).addTo(map);
+
             }
-            
-            userMarker.bindPopup(`<b>Ви тут!</b><br>Координати: ${lat.toFixed(4)}, ${lng.toFixed(4)}<br>Час: ${time}`).openPopup();
-            
+
+            // Інформація про користувача
+            userMarker.bindPopup(
+                `<b>Ви тут!</b>
+                <br>
+                Координати: ${lat.toFixed(4)}, ${lng.toFixed(4)}
+                <br>
+                Час: ${time}`
+            );
+
+            userMarker.openPopup();
+
+            // Переміщення карти до користувача
             map.panTo([lat, lng]);
+
         }
 
+
+        // Обробка помилок геолокації
         function displayError(error) {
+
             const errorTypes = {
-                0: "Невідома помилка",
                 1: "Користувач заборонив доступ до геолокації",
                 2: "Позиція недоступна",
                 3: "Час очікування вичерпано"
             };
-            let errorMessage = errorTypes[error.code];
-            if (error.code == 0 || error.code == 2) {
-                errorMessage += " " + error.message;
-            }
-            document.getElementById("location").innerHTML = `<span style="color:red;">${errorMessage}</span>`;
+
+            let errorMessage =
+                errorTypes[error.code] || "Невідома помилка";
+
+            document.getElementById("location").innerHTML =
+                `<span style="color:red;">
+                    ${errorMessage}
+                </span>`;
+
         }
 
+
+        // Обчислення відстані між двома точками
         function computeDistance(startCoords, destCoords) {
-            let startLatRads = degreesToRadians(startCoords.latitude);
-            let startLongRads = degreesToRadians(startCoords.longitude);
-            let destLatRads = degreesToRadians(destCoords.latitude);
-            let destLongRads = degreesToRadians(destCoords.longitude);
-            let Radius = 6371;
+
+            let startLatRads = degreesToRadians(
+                startCoords.latitude
+            );
+
+            let startLongRads = degreesToRadians(
+                startCoords.longitude
+            );
+
+            let destLatRads = degreesToRadians(
+                destCoords.latitude
+            );
+
+            let destLongRads = degreesToRadians(
+                destCoords.longitude
+            );
+
+            const Radius = 6371;
 
             let distance = Math.acos(
-                Math.sin(startLatRads) * Math.sin(destLatRads) +
-                Math.cos(startLatRads) * Math.cos(destLatRads) *
-                Math.cos(startLongRads - destLongRads)
+                Math.min(1, Math.max(-1,
+                    Math.sin(startLatRads) *
+                    Math.sin(destLatRads) +
+
+                    Math.cos(startLatRads) *
+                    Math.cos(destLatRads) *
+                    Math.cos(startLongRads - destLongRads)
+                ))
             ) * Radius;
+
             return distance;
+
         }
 
+
+        // Перетворення градусів у радіани
         function degreesToRadians(degrees) {
+
             return (degrees * Math.PI) / 180;
+
         }
 
+
+        // Початок відстежування
         document.getElementById("watch").onclick = () => {
+
             if (navigator.geolocation) {
-                if (!watchId) {
-                    watchId = navigator.geolocation.watchPosition(displayLocation, displayError, { enableHighAccuracy: true });
-                    document.getElementById("location").innerHTML = "Відслідковування запущено...";
+
+                if (watchId === null) {
+
+                    watchId = navigator.geolocation.watchPosition(
+                        displayLocation,
+                        displayError,
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+
+                    document.getElementById("location").innerHTML =
+                        "Відстежування запущено...";
+
                 }
+
             } else {
+
                 alert("Ваш браузер не підтримує геолокацію");
+
             }
+
         };
 
+
+        // Зупинка відстежування
         document.getElementById("clearWatch").onclick = () => {
-            if (watchId) {
+
+            if (watchId !== null) {
+
                 navigator.geolocation.clearWatch(watchId);
+
                 watchId = null;
-                document.getElementById("location").innerHTML += "<br><span style='color:orange;'>Відслідковування зупинено.</span>";
+
+                document.getElementById("location").innerHTML +=
+                    "<br><span style='color:orange;'>" +
+                    "Відстежування зупинено." +
+                    "</span>";
+
             }
+
         };
 
+
+        // Перехід до пункту призначення
         document.getElementById("goToDest").onclick = () => {
-            let lat = parseFloat(document.getElementById("destLat").value);
-            let lng = parseFloat(document.getElementById("destLng").value);
-            
-            if (!isNaN(lat) && !isNaN(lng) && map) {
-                map.flyTo([lat, lng], 15);
-                L.marker([lat, lng]).addTo(map).bindPopup(`<b>Пункт призначення</b><br>${lat}, ${lng}`).openPopup();
-            } else {
-                alert("Будь ласка, введіть коректні координати і переконайтеся, що карта завантажена.");
+
+            let lat = parseFloat(
+                document.getElementById("destLat").value
+            );
+
+            let lng = parseFloat(
+                document.getElementById("destLng").value
+            );
+
+            // Перевірка координат
+            if (
+                !Number.isFinite(lat) ||
+                !Number.isFinite(lng) ||
+                lat < -90 || lat > 90 ||
+                lng < -180 || lng > 180
+            ) {
+
+                alert("Будь ласка, введіть коректні координати.");
+
+                return;
+
             }
+
+            // Переміщення карти
+            map.flyTo([lat, lng], 15);
+
+            // Створення або переміщення маркера
+            if (destinationMarker) {
+
+                destinationMarker.setLatLng([lat, lng]);
+
+            } else {
+
+                destinationMarker = L.marker([lat, lng]).addTo(map);
+
+            }
+
+            destinationMarker.bindPopup(
+                `<b>Пункт призначення</b>
+                <br>
+                Широта: ${lat}
+                <br>
+                Довгота: ${lng}`
+            ).openPopup();
+
         };
+
+
+        // Створення карти після завантаження сторінки
+        initMap(
+            collegeCoords.latitude,
+            collegeCoords.longitude
+        );
+
     </script>
+
 </body>
 </html>
