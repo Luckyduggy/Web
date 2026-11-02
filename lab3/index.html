@@ -34,6 +34,7 @@
         function getFullName(firstName, lastName) { return `${firstName} ${lastName}`; }
         function showGreeting(fullName, age) { return `Hello, ${fullName}! You are ${age} years old.`; }
         
+        // ВИПРАВЛЕНО: getElementById замість getElementsById
         document.getElementById('btn-4-6-1').addEventListener('click', () => {
             const fName = prompt("Введіть ім'я:");
             const lName = prompt("Введіть прізвище:");
