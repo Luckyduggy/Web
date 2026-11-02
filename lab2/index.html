@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота №2</title>
+</head>
+
+<body>
+
+    <h1>Лабораторна робота №2</h1>
+    <h2>Виконав: Арсеній Пазюк</h2>
+    <p>Номер у журналі: 9</p>
+
+    <h2>Рівень 4–6 балів</h2>
+    <button id="task1">Завдання 1</button>
+    <button id="task2">Завдання 2</button>
+    <button id="task3">Завдання 3</button>
+
+    <h2>Рівень 7–9 балів</h2>
+    <button id="task4">Завдання 1</button>
+    <button id="task5">Завдання 2</button>
+    <button id="task6">Завдання 3</button>
+
+    <h2>Рівень 10–12 балів</h2>
+    <button id="task7">Завдання 1</button>
+    <button id="task8">Завдання 2</button>
+    <button id="task9">Завдання 3</button>
+
+    <script type="module">
+
+        // РІВЕНЬ 4–6
+
+        // Завдання 1
+        document.getElementById("task1").onclick = function () {
+            const userName = prompt("Як тебе звати?");
+            if (userName !== null) {
+                alert(`Hello, ${userName}! Welcome to JavaScript`);
+            }
+        };
+
+        // Завдання 2
+        document.getElementById("task2").onclick = function () {
+            const age = Number(prompt("Скільки тобі років?"));
+            const currentYear = new Date().getFullYear();
+            const birthYear = currentYear - age;
+
+            alert(`You were born in ${birthYear}`);
+        };
+
+        // Завдання 3
+        document.getElementById("task3").onclick = function () {
+            const firstName = prompt("Введи ім'я:");
+            const lastName = prompt("Введи прізвище:");
+
+            console.log("Your full name is " + firstName + " " + lastName);
+
+            console.log(`Your full name is ${firstName} ${lastName}`);
+        };
+
+
+        // РІВЕНЬ 7–9
+
+        // Завдання 1
+        document.getElementById("task4").onclick = function () {
+            const userName = "Арсеній";
+
+            if (true) {
+                const userName = prompt("Введи інше ім'я:");
+                console.log("Ім'я всередині if:", userName);
+            }
+
+            console.log("Глобальне ім'я:", userName);
+        };
+
+        // Завдання 2
+        document.getElementById("task5").onclick = function () {
+            const name = prompt("Введи ім'я:");
+            const age = prompt("Введи вік:");
+
+            const answer = confirm(
+                `Hello, ${name}! Your age is ${age}. Continue?`
+            );
+
+            if (answer) {
+                alert("Welcome!");
+            } else {
+                alert("Goodbye!");
+            }
+        };
+
+        // Завдання 3
+        document.getElementById("task6").onclick = function () {
+            const number = Number(prompt("Введи число:"));
+
+            if (number % 2 === 0) {
+                alert("Number is even");
+            } else {
+                alert("Number is odd");
+            }
+        };
+
+
+        // РІВЕНЬ 10–12
+
+        // Завдання 1
+        function calculate() {
+            const result = 100;
+
+            if (true) {
+                const result = 200;
+                console.log("Внутрішній result:", result);
+            }
+
+            console.log("Зовнішній result:", result);
+        }
+
+        document.getElementById("task7").onclick = function () {
+            calculate();
+        };
+
+        // Завдання 2
+        document.getElementById("task8").onclick = function () {
+            const secretNumber = 9 % 10;
+
+            const guess = Number(prompt("Вгадай число від 0 до 9:"));
+
+            if (guess === secretNumber) {
+                alert("Correct!");
+            } else {
+                alert("Wrong!");
+            }
+        };
+
+        // Завдання 3
+        document.getElementById("task9").onclick = function () {
+            const name = prompt("Введи своє ім'я:");
+            const a = Number(prompt("Введи перше число:"));
+            const b = Number(prompt("Введи друге число:"));
+
+            console.log(
+                "Hello, " + name +
+                "! The sum of " + a +
+                " and " + b +
+                " is " + (a + b)
+            );
+        };
+
+    </script>
+
+</body>
+
+</html>
